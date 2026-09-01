@@ -14,7 +14,7 @@ cypi_dict = open_files("cypi_dict.pkl")
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-# ==================== 你原始 Encoder 完全不变 ====================
+
 class EncoderLayer(nn.Module):
     def __init__(self, i_channel, o_channel, growth_rate, groups, pad2=7):
         super(EncoderLayer, self).__init__()
@@ -57,25 +57,19 @@ class Encoder(nn.Module):
         return x
 
 
-
-# ==================== 主模型：完全保留你原始结构 ====================
 class DFusion_DFI_model(nn.Module):
     def __init__(self, hidden1=256, attn_heads=1):
         super().__init__()
         self.hidden1 = hidden1
 
-        # CNN编码器
         self.encoder_DF = Encoder(768, hidden1, 128, 3, groups=32, pad1=7, pad2=3)
 
-        # ==================== CYP 交叉注意力模块 ====================
         self.cyp_proj = nn.Linear(1024, 768)
 
-        # 注意力层
         self.drug_multihead = nn.TransformerEncoderLayer(hidden1, 1, hidden1*2, 0.05, batch_first=True)
         self.food_multihead = nn.TransformerEncoderLayer(hidden1, 1, hidden1*2, 0.05, batch_first=True)
         self.DF_Multihead = nn.TransformerEncoderLayer(hidden1*2, 1, hidden1*6, 0.05, batch_first=True)
 
-        # 你原始的池化、全连接
         self.avg_pool = nn.ModuleList([
             nn.AdaptiveAvgPool1d(128),
             nn.AdaptiveAvgPool1d(128)
@@ -92,7 +86,6 @@ class DFusion_DFI_model(nn.Module):
         for i, d in enumerate(drug_list):
             if d in cypi_dict:
                 cyp_raw[i] = torch.tensor(cypi_dict[d]).float().to(device)
-        # 映射到 768 维
         cyp_seq = self.cyp_proj(cyp_raw)
         return cyp_seq
 
@@ -121,11 +114,9 @@ class DFusion_DFI_model(nn.Module):
         drug_fea = self.encoder_DF(drug_fea.permute(0,2,1)).permute(0,2,1)
         food_fea = self.encoder_DF(food_fea.permute(0,2,1)).permute(0,2,1)
 
-        # 自注意力
         drug_fea = self.drug_multihead(drug_fea)
         food_fea = self.food_multihead(food_fea)
 
-        # 你原始的融合逻辑
         temp = drug_fea + food_fea
         drug_fea = self.avg_pool[0](drug_fea)
         food_fea = self.avg_pool[1](food_fea)
