@@ -14,9 +14,6 @@ def open_files(file_name):
 drug_food_ID = open_files("drug_food_ID.pkl")
 ID_NUM = len(drug_food_ID)
 
-
-
-# 1. 文本+结构 主干融合（保留原有最优模块）
 class BilayerGatedFusion(nn.Module):
     def __init__(self, dim=512):
         super().__init__()
@@ -58,8 +55,6 @@ class BilayerGatedFusion(nn.Module):
         fuse = self.norm(self.out_proj(fuse) + fuse)
         return self.drop(fuse)
 
-
-# 2. 双ID交互模块（核心：drug_id + food_id 配对融合）
 class PairIDFusion(nn.Module):
     def __init__(self, emb_dim, out_dim=512):
         super().__init__()
@@ -78,7 +73,6 @@ class PairIDFusion(nn.Module):
         return self.norm(id_feat)
 
 
-# 3. 模态特征 + ID配对特征 融合
 class ModalIDJointFusion(nn.Module):
     def __init__(self, feat_dim=512, alpha=0.7):
         super().__init__()
@@ -103,8 +97,6 @@ class ModalIDJointFusion(nn.Module):
         fused = self.alpha * modal_feat * gate + (1 - self.alpha) * pair_id_feat * (1 - gate)
         return self.final_enhance(fused)
 
-
-# 4. 分类头
 class AUCOptClassifier(nn.Module):
     def __init__(self, dim=512, num_classes=2):
         super().__init__()
@@ -119,7 +111,6 @@ class AUCOptClassifier(nn.Module):
         return self.cls(x)
 
 
-# 主模型
 class fusion_model(nn.Module):
     def __init__(self, flag=1, hidden1=256):
         super().__init__()
