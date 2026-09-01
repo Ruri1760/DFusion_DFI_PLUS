@@ -15,7 +15,7 @@ class cross_attention(nn.Module):
         self.gelu = nn.GELU()
         self.softmax = nn.Softmax(-1)
 
-    def forward(self, x, y, z): # xs, x两个模态的表示，先做交叠注意力，然后再拼接
+    def forward(self, x, y, z): 
         q = self.W_q(x)
         k = self.W_k(y)
         v = self.W_v(z)
