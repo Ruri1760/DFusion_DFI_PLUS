@@ -21,7 +21,7 @@ class DrugFoodDataset(Dataset):
     def __getitem__(self, idx):
         drug_id, food_id, label = self.pairs[idx]
         
-        # 返回样本（可根据模型需求调整格式）
+
         return {
             'drug_id': drug_id,
             'food_id': food_id,
@@ -31,19 +31,17 @@ class DrugFoodDataset(Dataset):
 
 def create_data_loaders2(csv_path, batch_size=32, flag=1, shuffle=True):
     df = pd.read_csv(csv_path)  
-    # 按split列划分数据
+
     split_flag = ["split","split_newdrug","split_newfood"]
     print("split_flag:",split_flag[flag] )
     train_df = df[df[split_flag[flag]] == 'train']
     val_df = df[df[split_flag[flag]] == 'valid']
     test_df = df[df[split_flag[flag]] == 'test']
     
-    # 创建数据集
     train_dataset = DrugFoodDataset(train_df)
     val_dataset = DrugFoodDataset(val_df)
     test_dataset = DrugFoodDataset(test_df)
-    
-    # 创建数据加载器
+
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=shuffle)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
