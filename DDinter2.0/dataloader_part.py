@@ -10,14 +10,12 @@ def open_files(file_name):
         loaded_dict = pickle.load(f)
     return loaded_dict
 
-# 判断样本是否存在于数据框中
 def judge_sample_isin(drug_ID, food_name, df):
     for i in range(len(df)):
         if drug_ID == df['Drug ID'][i] and food_name == df['Food name'][i]:
             return 1
     return 0
 
-# 处理数据，生成正样本集和负样本集
 def deal_with_data(df):
     ID_list = df['Drug ID'].unique().tolist()
     food_name_list = df['Food name'].unique().tolist()
@@ -33,7 +31,6 @@ def deal_with_data(df):
                 neg_dataset.append([drug_ID, food_name, label])
     return pos_dataset, neg_dataset
 
-# 划分训练集和测试集
 def train_test_data1(data_lis):
     data_lis = np.array(data_lis)
     drug_pair = data_lis[:, :2]
@@ -54,7 +51,6 @@ def train_test_data1(data_lis):
 
     return train_X_data, train_Y_data, test_X_data, test_Y_data
 
-# 自定义数据集类
 class CustomDataset(Dataset):
     def __init__(self, X, Y):
         self.X = X
@@ -66,7 +62,6 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         return self.X[idx].tolist(), self.Y[idx]
 
-# 获取数据加载器
 def get_dataloader(trainx, trainy, testx, testy, batch_size=64):
     train_dataset = CustomDataset(trainx, trainy)
     test_dataset = CustomDataset(testx, testy)
@@ -76,7 +71,6 @@ def get_dataloader(trainx, trainy, testx, testy, batch_size=64):
     print(len(trainx)+len(testx))
     return loader_train, loader_test
 
-# 预先测试函数
 def untitled(file_name='./datasets/drug_food2.xlsx'):
     df = pd.read_excel(file_name)
 
