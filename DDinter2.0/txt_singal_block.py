@@ -31,7 +31,7 @@ class TransformerEncoderLayer(nn.Module):
         self.activation = activation
 
     def forward(self, src, src_mask=None, src_key_padding_mask=None):
-        # 开启 need_weights，返回注意力权重
+
         src2, attn_weight = self.self_attn(
             src, src, src,
             attn_mask=src_mask,
@@ -46,7 +46,6 @@ class TransformerEncoderLayer(nn.Module):
         src = src + self.dropout2(src2)
         src = self.norm2(src)
 
-        # 返回：特征, 注意力权重
         return src, attn_weight
 class EncoderLayer(nn.Module):
     def __init__(self, i_channel, o_channel, growth_rate, groups, pad2=7):
