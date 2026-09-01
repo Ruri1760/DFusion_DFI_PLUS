@@ -46,8 +46,7 @@ class MultiheadAttention(nn.Module):
     def forward(self, x, y, z, mask=None):
         q, k, v = self.wq(x), self.wk(y), self.wv(z) 
         q, k, v = self.split(q), self.split(k), self.split(v) 
-        
-        # 计算注意力
+
         output, attn_weight = self.attention(k, q, v, mask) 
         output = self.concat(output)  
         output = self.f(output)  
@@ -69,11 +68,11 @@ class Attention(nn.Module):
         self.f = nn.Linear(self.dim, self.dim)
         self.norm = nn.LayerNorm(self.dim)
         self.dropout = nn.Dropout(drop_out)
-        nn.init.xavier_uniform_(self.wq.weight)  # Xavier确保输入输出方差一致
+        nn.init.xavier_uniform_(self.wq.weight)  
         nn.init.xavier_uniform_(self.wk.weight)
         nn.init.xavier_uniform_(self.wv.weight)
         nn.init.xavier_uniform_(self.f.weight)
-        # 偏置初始化（0.1兜底，避免输出全零）
+
         nn.init.constant_(self.wq.bias, 0.1)
         nn.init.constant_(self.wk.bias, 0.1)
         nn.init.constant_(self.wv.bias, 0.1)
@@ -88,8 +87,7 @@ class Attention(nn.Module):
 
     def forward(self, x):
         q, k, v = self.wq(x), self.wk(x), self.wv(x) 
- 
-        # 计算注意力
+
         output, attn_weight = self.attention(k, q, v) 
         output = self.f(output)  
         output = self.dropout(output)
