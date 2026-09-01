@@ -45,7 +45,6 @@ class EnzymeGuidedEnhance(nn.Module):
 
 
         if mask is not None:
-            # padding位置设为 -inf，softmax后权重趋近0
             mask = mask.unsqueeze(-1)  # [B, L, 1]
             attn = attn.masked_fill(~mask, -1e9)
 
