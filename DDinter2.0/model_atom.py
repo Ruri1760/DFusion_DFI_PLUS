@@ -18,7 +18,6 @@ def open_files(file_name):
         loaded_dict = pickle.load(f)
     return loaded_dict
 
-# 加载预处理数据
 drug_atom_fea = open_files("drug_all_atom_fea.pkl")
 drug_smiles = open_files("drug_id2smiles.pkl")
 drug_food_ID = open_files("drug_food_ID.pkl")
@@ -209,7 +208,6 @@ class DFIFusionModel(nn.Module):
         ).to(device)
 
         self.inter_attn = ImprovedMultiheadAttention(embed_dim * 2, num_heads, dropout)
-        # ✅增加分类头，输出logits [B,2]适配loss计算
         self.classifier = nn.Sequential(
             nn.Linear(embed_dim*2, embed_dim),
             nn.LayerNorm(embed_dim),
@@ -223,8 +221,7 @@ class DFIFusionModel(nn.Module):
         inter_feat = torch.cat([drug_fea, food_fea], dim=-1)
         inter_fused_fea, inter_attn = self.inter_attn(inter_feat, inter_feat, inter_feat)
 
-        # 去掉seq维度，送入分类头
         fea_squeeze = inter_fused_fea.squeeze(1)
         logits = self.classifier(fea_squeeze)
-        # 训练时只用logits；drug_attn_list可用于可视化/消融实验
+
         return logits
